@@ -1,62 +1,66 @@
 import csv
 import os
-
-
-
-
+# importing packages
 
 file_to_load = os.path.join("..", "Resources", "budget_data.csv")  
-file_to_output = os.path.join("analysis", "budget_analysis.txt")  
+file_to_output = os.path.join("budget_analysis.txt")  
+# file path to open and read the data from the csv file and write to the txt file
+
 
 total_months = 0
 total_net = 0
-
-print("Financial Analysis")
-print("------------------------")
-
-# Open and read the csv
-with open(file_to_load) as financial_data:
-    reader = csv.reader(financial_data, delimiter=",")
+values = [0]
+dates = [0]
+# initializing the value for these four variables
 
 
-
-    header = next(reader)
-    # print(f'Header: {header}')
-
+with open(file_to_load) as financial_data: # Open the csv file
+    reader = csv.reader(financial_data, delimiter=",") 
+    # Reads the csv file and acknowledge the data is split between the commoas
+    header = next(reader) # reads the header row
 
     for row in reader:
-        total_months += 1
-        total_net +=int(row[1])
-
-print(f"Total Months: {total_months}")
-print(f"Total: {total_net}")
-# month_index = header.index('Date')
-# num_months = set(row[month_index] for row in data)
-# print(f'Total Months: {len(num_months)}')
-# print(f'Total: ')
-
-# PL_Index = header.index('Profit/Losses')
-# PL_Totals = sum(float(row['Profit/Losses']) for row in data if row['Profit/Losses'])
-# print(f'Total: {PL_Totals}')
-   
+        total_months += 1 # counts the total number of months
+        total_net += int(row[1]) # calculates the total amount
+        values.append(int(row[1])) # appending the value in the P&L column
+        dates.append(row[0]) # appending the value in the date column
 
 
-# print("Financial Analysis")
-# print("----------------------------------------")
+    changes = [values[i+1] - values[i] for i in range(1, len(values)-1)] 
+    # calculating the value of the change between current row and the proceeding 
+    # row through the entire rows in the P&L column
 
-# def budget_num(Fin_data):
-#     Date = Fin_data[0]
-#     P_L = int(Fin_data[1])
+    avg_chg = sum(changes)/(len(changes))
+    max_chg = max(changes)
+    min_chg = min(changes)
+#  The three lines of code above is used to determine the average change, 
+#  the amount of the greatest increase in profits and the amount of the greatest 
+#  decrease in profits.
+
+    max_index = changes.index(max(changes))+2
+    max_date = dates[max_index]
+    # Code is executed to determine the date of the greatest increase in profits. 
+    min_index = changes.index(min(changes)) + 2
+    min_date = dates[min_index]
+    # Code is executed to determine the date of the greatest decrease in profits. 
 
 
-#     Date_count = len(Date)
-#     Total_PL = (P_L)
-#     return Date_count, Total_PL
+financial_results = (
+f"Financial Analysis\n"
+f"\n"
+f"------------------------\n"
+f"\n"
+f"Total Months: {total_months}\n"
+f"Total: ${total_net}\n"
+f"Average Change: ${avg_chg:.2f}\n"
+f"Greatest Increase in Profits: {max_date} (${max_chg})\n"
+f"Greatest Decrease in Profits: {min_date} (${min_chg})\n"
+)
+# Created a variable called financial_results to store all the required 
+# data for the assignment so that the data can easily be written to a text file. 
 
-
-# for row in reader:
-    # Date_count, Total_PL = budget_num(row)
-    # print(f"Total Months: {Date_count}, Total P/L: {Total_PL}")
-
-# with open(file_to_output, "w") as txt_file:
-#     txt_file.write(output)
+print(financial_results)
+#prints the results        
+with open(file_to_output, "w") as budget_analysis:
+    budget_analysis.write(financial_results)
+# writes the data stored in financial_results to a text file called budget_analysis.txt
